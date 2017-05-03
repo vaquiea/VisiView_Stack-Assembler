@@ -7,61 +7,62 @@ import re
 from glob import glob
 from ij import IJ, WindowManager
 
+
 def run():
-	time_dirs = glob(os.path.join(input_dir.getPath(), 't*/'))
-	
-	for time_dir in time_dirs:
-		print '\tprocessing %s' % time_dir
-	
-		# Extract information from file name
-		xy_files = glob(os.path.join(time_dir, '*.tif'))
-		match = re.search('(.*)_x\d_y\d_t(\d{1,2})\.tif', os.path.basename(xy_files[0]))
-		if not match:
-			print 'Could not extract time digits from %s\nAbort.' % (time_dir)
-			return
+    time_dirs = glob(os.path.join(input_dir.getPath(), 't*/'))
 
-		experiment = match.group(1)
-		time = match.group(2)
-		fields = str(len(xy_files))
-		print '\t\texperiment=%s, time-point=%s, #files=%s' % (experiment, time, fields)
+    for time_dir in time_dirs:
+        print '\tprocessing %s' % time_dir
 
-		# Compose the output file name 
-		output_file = os.path.join(input_dir.getPath(), experiment + '_t' + time + '.tif')
-		if os.path.exists(output_file):
-			print '\t\talreday stitched, output file: %s)' % output_file
-			continue
+        # Extract information from file name
+        xy_files = glob(os.path.join(time_dir, '*.tif'))
+        match = re.search('(.*)_x\d_y\d_t(\d{1,2})\.tif', os.path.basename(xy_files[0]))
+        if not match:
+            print 'Could not extract time digits from %s\nAbort.' % (time_dir)
+            return
 
-		# Run the stitching macro
-		print '\t\truning stitching plugin...'
-		IJ.run('Grid/Collection stitching', \
-				'type=[Filename defined position]' + \
-				' order=[Defined by filename         ]' + \
-				' grid_size_x=1' + \
-				' grid_size_y=' + fields + \
-				' tile_overlap=' + str(overlap) + \
-				' first_file_index_x=1' + \
-				' first_file_index_y=1' + \
-				' directory=' + time_dir + \
-				' file_names=12_x{x}_y{y}_t' + time + '.tif' + \
-				' output_textfile_name=TileConfiguration.txt' + \
-				' fusion_method=[Linear Blending]' + \
-				' regression_threshold=0.30' + \
-				' max/avg_displacement_threshold=2.50' + \
-				' absolute_displacement_threshold=3.50' + \
-				' compute_overlap' + \
-				' subpixel_accuracy' + \
-				' computation_parameters=[Save computation time (but use more RAM)]' + \
-				' image_output=[Fuse and display]');
+        experiment = match.group(1)
+        time = match.group(2)
+        fields = str(len(xy_files))
+        print '\t\texperiment=%s, time-point=%s, #files=%s' % (experiment, time, fields)
 
-		# Save the output
-		imp = WindowManager.getImage("Fused")
-		IJ.save(imp, output_file)
-		print '\t\tsaved:  %s' % (output_file)
-		IJ.run('Close All')
+        # Compose the output file name
+        output_file = os.path.join(input_dir.getPath(), experiment + '_t' + time + '.tif')
+        if os.path.exists(output_file):
+            print '\t\talreday stitched, output file: %s)' % output_file
+            continue
 
-	print 'Done.'
+        # Run the stitching macro
+        print '\t\truning stitching plugin...'
+        IJ.run('Grid/Collection stitching', \
+               'type=[Filename defined position]' + \
+               ' order=[Defined by filename         ]' + \
+               ' grid_size_x=1' + \
+               ' grid_size_y=' + fields + \
+               ' tile_overlap=' + str(overlap) + \
+               ' first_file_index_x=1' + \
+               ' first_file_index_y=1' + \
+               ' directory=' + time_dir + \
+               ' file_names=12_x{x}_y{y}_t' + time + '.tif' + \
+               ' output_textfile_name=TileConfiguration.txt' + \
+               ' fusion_method=[Linear Blending]' + \
+               ' regression_threshold=0.30' + \
+               ' max/avg_displacement_threshold=2.50' + \
+               ' absolute_displacement_threshold=3.50' + \
+               ' compute_overlap' + \
+               ' subpixel_accuracy' + \
+               ' computation_parameters=[Save computation time (but use more RAM)]' + \
+               ' image_output=[Fuse and display]');
+
+        # Save the output
+        imp = WindowManager.getImage("Fused")
+        IJ.save(imp, output_file)
+        print '\t\tsaved:  %s' % (output_file)
+        IJ.run('Close All')
+
+    print 'Done.'
 
 
 if __name__ == '__main__':
-	print 'Running "Stitch x-y-stacks" macro'
-	run()
+    print 'Running "Stitch x-y-stacks" macro'
+    run()
