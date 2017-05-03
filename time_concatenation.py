@@ -4,7 +4,6 @@
 
 # @DatasetIOService io
 # @OpService ops
-# @LogService log
 # @StatusService status
 
 
@@ -13,23 +12,15 @@ from glob import glob
 from datetime import datetime
 
 from java.lang import Long, Boolean, Short
-from java.nio import ByteBuffer
-
 from loci.formats import ImageReader, ImageWriter
 from loci.formats import MetadataTools
 from loci.formats import FormatTools
 from loci.common import DataTools
-
 from ome.xml.model.primitives import PositiveInteger
 from ome.xml.model.enums import DimensionOrder
 from ome.xml.model.enums import PixelType
-
-from io.scif.img import ImgOpener
 from net.imagej.axis import Axes
-
 from net.imglib2.view import Views
-from net.imglib2.img.display.imagej import ImageJFunctions;
-from net.imglib2.util import Intervals
 
 
 def copy(source, dimensions):
@@ -46,8 +37,6 @@ def copy(source, dimensions):
 
 def run():
     t_start = datetime.now()
-
-    print 'Running time-point concatenation script...'
     image_paths = glob(os.path.join(str(import_dir.getPath()), '*tif'))
 
     print '\tread image metadata'
@@ -131,14 +120,11 @@ def run():
     print '\tcreated to %s' % (result_path)
 
     # Write the stacks into the output file
-    for image_path in image_paths:
+    N = len(image_paths)
+    for i, image_path in enumerate(image_paths):
+        status.showStatus(i, N, "catenating %i of %i time-points" % (i, N))
         print '\t  processing %s' % (image_path)
         ds = io.open(image_path)
-        #		print ds.getTypeLabelLong()
-        #		for d in range(ds.numDimensions()):
-        #			print ds.dimension(d)
-        #		return
-
         xi = ds.dimensionIndex(Axes.X)
         xv = ds.dimension(xi)
         yi = ds.dimensionIndex(Axes.Y)
@@ -153,7 +139,6 @@ def run():
         dx = float(x_dim - xv) / 2.0
         dy = float(y_dim - yv) / 2.0
         dz = float(z_dim - zv) / 2.0
-        translation = [long(dx), long(dy), long(0), long(dz)]
         print '\t     translation vector (dx, dy, dz) = (%f, %f, %f)' % (dx, dy, dz)
 
         if (dx != 0) or (dy != 0) or (dz != 0):
@@ -161,32 +146,6 @@ def run():
             stk = Views.extendZero(stk)
         else:
             stk = Views.extendZero(ds.getImgPlus().getImg())
-
-        #		img = copy(stk, [long(x_dim), long(y_dim), long(c_dim), long(z_dim)])
-        #		ImageJFunctions.show(img)
-        #		return
-
-        #		plane = 0
-        #		random_access = stk.randomAccess()
-        #		print '\t     writing planes ',
-        #		for z in range(z_dim):
-        #			for c in range(c_dim):
-        #				byte_array = []
-        #				for y in range(y_dim):
-        #					for x in range(x_dim):
-        #						random_access.setPosition([x, y, c, z])
-        #						# TODO: This is not type generic
-        #						value = random_access.get().getInteger()
-        #						bytes = DataTools.shortToBytes(value, big_endian)
-        #						byte_array.extend(bytes)
-        #
-        #				if (plane % 10) == 0:
-        #					print '\n\t                    ',
-        #
-        #				print '.',
-        #
-        #				writer.saveBytes(plane, byte_array)
-        #				plane += 1
 
         print '\t     writing planes ',
         n = 0
@@ -219,9 +178,10 @@ def run():
     writer.close()
     t = datetime.now() - t_start
     print '\twrote %i planes to %s in %i sec.' % (plane - 1, result_path, t.total_seconds())
-    print '...done.'
+    print '... done.'
 
 
 if __name__ == '__main__':
-    IJ.run("Console", "uiservice=[org.scijava.ui.DefaultUIService [priority = 0.0]]")
+    status.clearStatus()
+    print 'Running time_concatenation.py ...'
     run()
