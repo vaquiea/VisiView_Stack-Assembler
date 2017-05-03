@@ -2,6 +2,9 @@
 # @Integer(label='Image overlap', value=20) overlap
 # @String(label='Memory management', choices={'Save computation time (but use more RAM)', 'Save memory (but slower)'}, value='Save computation time (but use more RAM)') memory
 
+# @LogService log
+
+
 import os
 import re
 from glob import glob
@@ -12,24 +15,24 @@ def run():
     time_dirs = glob(os.path.join(input_dir.getPath(), 't*/'))
 
     for time_dir in time_dirs:
-        print '\tprocessing %s' % time_dir
+        log.info('\tprocessing %s' % time_dir)
 
         # Extract information from file name
         xy_files = glob(os.path.join(time_dir, '*.tif'))
         match = re.search('(.*)_x\d_y\d_t(\d{1,2})\.tif', os.path.basename(xy_files[0]))
         if not match:
-            print 'Could not extract time digits from %s\nAbort.' % (time_dir)
+            log.error('\tCould not extract time digits from %s\nAbort.' % (time_dir))
             return
 
         experiment = match.group(1)
         time = match.group(2)
         fields = str(len(xy_files))
-        print '\t\texperiment=%s, time-point=%s, #files=%s' % (experiment, time, fields)
+        log.info('\t\texperiment=%s, time-point=%s, #files=%s' % (experiment, time, fields))
 
         # Compose the output file name
         output_file = os.path.join(input_dir.getPath(), experiment + '_t' + time + '.tif')
         if os.path.exists(output_file):
-            print '\t\talreday stitched, output file: %s)' % output_file
+            log.info('\t\talreday stitched: %s)' % output_file)
             continue
 
         # Run the stitching macro
@@ -57,12 +60,13 @@ def run():
         # Save the output
         imp = WindowManager.getImage("Fused")
         IJ.save(imp, output_file)
-        print '\t\tsaved:  %s' % (output_file)
+        log.info('\t\tsaved:  %s' % (output_file))
         IJ.run('Close All')
 
-    print 'Done.'
+    log.info('Done.')
 
 
 if __name__ == '__main__':
-    print 'Running "Stitch x-y-stacks" macro'
+    IJ.run("Console", "uiservice=[org.scijava.ui.DefaultUIService [priority = 0.0]]")
+    log.info('Running "stitch_x-y-stacks.py" macro')
     run()

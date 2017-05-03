@@ -2,9 +2,10 @@
 # @File(label='Output directory', style='directory') result_dir
 # @String(label='Output file name', value='output.ome.tif') result_name
 
-# @DatasetIOService datasetio
+# @DatasetIOService io
 # @OpService ops
-# @UIService ui
+# @LogService log
+# @StatusService status
 
 
 import os
@@ -132,7 +133,7 @@ def run():
     # Write the stacks into the output file
     for image_path in image_paths:
         print '\t  processing %s' % (image_path)
-        ds = datasetio.open(image_path)
+        ds = io.open(image_path)
         #		print ds.getTypeLabelLong()
         #		for d in range(ds.numDimensions()):
         #			print ds.dimension(d)
@@ -222,4 +223,5 @@ def run():
 
 
 if __name__ == '__main__':
+    IJ.run("Console", "uiservice=[org.scijava.ui.DefaultUIService [priority = 0.0]]")
     run()
