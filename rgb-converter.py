@@ -1,5 +1,6 @@
 # @File(label="Input directory", style="directory") input_dir
 # @File(label="Output directory", style="directory") output_dir
+# @String(label="Image file extension", value=".tif") extension
 # @String(label="Channel minima separated by ; (-1 -> auto)") ch_min
 # @String(label="Channel maxima separated by ; (-1 -> auto)") ch_max
 
@@ -10,7 +11,10 @@ from ij import IJ
 from java.lang import Double
 
 
-def run(in_dir, ou_dir, minimum, maximum):
+def run(in_dir, ou_dir, extension, minimum, maximum):
+	extension = extension.strip()
+	extension = "*" + extension
+		
 	for path in glob(os.path.join(in_dir, '*.tif')):
 		print path + ':',
 		IJ.open(path)
@@ -38,10 +42,9 @@ def run(in_dir, ou_dir, minimum, maximum):
 		print ' '
 		IJ.run('Make Composite');
 		IJ.run('RGB Color')
-		IJ.run('Save', 'save=[' + os.path.join(ou_dir, os.path.basename(path)) + ']')		
-		return
+		IJ.run('Save', 'save=[' + os.path.join(ou_dir, os.path.basename(path)) + ']')
 		IJ.run('Close All');
 
 
 if __name__ == '__main__':
-	run(input_dir.getPath(), output_dir.getPath(), ch_min, ch_max)
+	run(input_dir.getPath(), output_dir.getPath(), extension, ch_min, ch_max)
