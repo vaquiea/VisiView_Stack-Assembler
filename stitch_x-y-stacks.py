@@ -66,7 +66,7 @@ def run():
     log.info('Done.')
 
 
-if __name__ == '__main__':
+if __name__ in ['__builtin__', '__main__']:
     IJ.run("Console", "uiservice=[org.scijava.ui.DefaultUIService [priority = 0.0]]")
     log.info('Running "stitch_x-y-stacks.py" macro')
     run()

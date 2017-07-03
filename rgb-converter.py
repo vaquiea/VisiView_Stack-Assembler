@@ -46,5 +46,5 @@ def run(in_dir, ou_dir, extension, minimum, maximum):
 		IJ.run('Close All');
 
 
-if __name__ == '__main__':
+if __name__ in ['__builtin__', '__main__']:
 	run(input_dir.getPath(), output_dir.getPath(), extension, ch_min, ch_max)

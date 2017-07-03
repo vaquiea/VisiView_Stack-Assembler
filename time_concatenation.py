@@ -181,7 +181,7 @@ def run():
     print '... done.'
 
 
-if __name__ == '__main__':
+if __name__ in ['__builtin__', '__main__']:
     status.clearStatus()
     print 'Running time_concatenation.py ...'
     run()
