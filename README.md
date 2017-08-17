@@ -1,3 +1,7 @@
+
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.844628.svg)](https://doi.org/10.5281/zenodo.844628)
+
 # VisiView Stack-Assembler
 This is a collection of [ImageJ][imagej] python scripts to assemble the multi-dimensional light microscopy images acquired with the spinning disk confocal [CSU-W1][csu-w1] into a single image-file.
 
